@@ -47,3 +47,22 @@ class Monkey(RescueAnimal):
     @body_length.setter
     def body_length(self, value):
         self._body_length = value
+
+    # Converting Object to dict for database
+    def to_dict(self):
+        return {
+            "name": self.name,
+            "type": self._animal_type,
+            "species": self._species,
+            "tail_length": self._tail_length,
+            "height": self._height,
+            "body_length": self._body_length,
+            "gender": self.gender,
+            "age": self.age,
+            "weight": self.weight,
+            "acquisition_date": self.acquisition_date,
+            "acquisition_country": self.acquisition_country,
+            "training_status": self.training_status,
+            "reserved": self.reserved,
+            "in_service_country": self.in_service_country
+        }

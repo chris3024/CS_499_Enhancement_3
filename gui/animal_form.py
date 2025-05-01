@@ -5,6 +5,9 @@ import tkinter.ttk as ttk
 from tkinter import messagebox
 from datetime import datetime
 
+from animals.dog import Dog
+from animals.monkey import Monkey
+from data.database_manager import AnimalDatabase
 
 
 # Class to hold new window to add a new animal
@@ -12,6 +15,7 @@ class AnimalFormWindow(tk.Toplevel):
     def __init__(self, parent, animal_type):
         super().__init__(parent)
 
+        self.db = AnimalDatabase()
         self.animal_type = animal_type
 
         self.submit_button = None
@@ -124,9 +128,8 @@ class AnimalFormWindow(tk.Toplevel):
         training_status = self.training_combobox.get()
         service = self.service_country_entry.get()
 
-        animal_data = {
+        common_data = {
             "name": name,
-            "animal_type": self.animal_type,
             "gender": gender,
             "age": age,
             "weight": weight,
@@ -138,26 +141,26 @@ class AnimalFormWindow(tk.Toplevel):
 
         }
 
-        # Determining the correct information to add and location to save dependent on the animal type
+        # Determining the correct information to add and save dependent on the animal type
         if self.animal_type == "Monkey":
             species = self.species_combobox.get()
-            animal_data["species"] = species
-            file_name = "data/animal_data_monkey.json"
+            animal = Monkey(species = species, **common_data)
+            print(f"{animal}")
         else:
             breed = self.breed_entry.get()
-            animal_data["breed"] = breed
-            file_name = "data/animal_data_dog.json"
+            animal = Dog (breed = breed, **common_data)
+            print(f"{animal}")
 
         # Checking that fields have data entered
         if not name or not age or not weight or not gender or not date or not country or not service:
             tk.messagebox.showerror("Error", "Please fill all fields.", parent=self)
             return
 
-        # Saving the animal to the JSON
-        # save_animals(file_name, animal_data)
+        animal_data = animal.to_dict()
 
-        # Displaying message if success
-        tk.messagebox.showinfo("Success", f"{self.animal_type} information saved!", parent=self)
-
-        # Closing the window
-        self.destroy()
+        # Creating the animal in the database
+        if self.db.create_animal(animal_data):
+            # Displaying message if success
+            tk.messagebox.showinfo("Success", f"{self.animal_type} information saved!", parent=self)
+            # Closing the window
+            self.destroy()

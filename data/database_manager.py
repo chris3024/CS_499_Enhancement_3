@@ -35,6 +35,18 @@ class AnimalDatabase:
     def is_admin(user):
         return user.get("role") == "admin"
 
+    # User Authentication and Admin stuff
+    def authenticate_user(self, username, password):
+        hashed_password = hashlib.sha256(password.encode()).hexdigest()
+
+        user = self.users_collection.find_one({'username': username, "password": hashed_password})
+
+        if user:
+            if user.get("is_first_login", False):
+                return user, True
+            return user, False
+        return None, False
+
     # Method for admin accounts to create new users
     def create_user(self, username, password, role="user"):
         hashed_password = hashlib.sha256(password.encode()).hexdigest()
@@ -47,7 +59,16 @@ class AnimalDatabase:
         # Debug
         print(f"User {username} created with role {role}")
 
-# TODO: Add Create Method and Delete Method
+    # Creating and inserting the animal into the database
+    def create_animal(self, animal_data):
+
+        try:
+            self.collection.insert_one(animal_data)
+            print(f"Created new animal: {animal_data}")
+        except Exception as e:
+            print(f"Error: {e}")
+            return False
+        return True
 
     # Reading all animals
     def read_all_animals(self, query=None):
@@ -59,15 +80,28 @@ class AnimalDatabase:
             print(f"Error: {e}")
 
     # Update animals
-    def update_animal(self, animal_id, updated_fields):
+    def update_animal(self, animal_id, animal_name, updated_fields):
 
         try:
-            result = self.collection.update_one({"_id": ObjectId(animal_id)}, {"$set": updated_fields})
+            result = self.collection.update_one({"_id": ObjectId(animal_id), "name": animal_name}, {"$set": updated_fields})
             if result.modified_count == 0:
-                print(f"No updates made for {animal_id}")
+                print(f"No updates made for {animal_name}")
                 return False
-            print(f"Updated {animal_id} with {updated_fields}")
+            print(f"Updated {animal_name} with {updated_fields}")
             return True
         except Exception as e:
             print(f"Error: {e}")
             return False
+
+    # Delete animal
+    def delete_animal(self, animal_id, animal_name):
+
+        try:
+            result = self.collection.delete_one({"_id": ObjectId(animal_id), "name": animal_name})
+            if result.deleted_count == 0:
+                print(f"No deletes made for {animal_name}")
+                return False
+            print(f"Deleted {animal_name} with {result.deleted_count}")
+            return True
+        except Exception as e:
+            print(f"Error: {e}")

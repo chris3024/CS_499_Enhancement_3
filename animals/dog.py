@@ -21,4 +21,20 @@ class Dog(RescueAnimal):
     def breed(self, dog_breed):
         self._breed = dog_breed
 
+    # Converting object to dict for database
+    def to_dict(self):
+        return {
+            "name": self.name,
+            "type": self._animal_type,
+            "breed": self._breed,
+            "gender": self.gender,
+            "age": self.age,
+            "weight": self.weight,
+            "acquisition_date": self.acquisition_date,
+            "acquisition_country": self.acquisition_country,
+            "training_status": self.training_status,
+            "reserved": self.reserved,
+            "in_service_country": self.in_service_country
+        }
+
 
