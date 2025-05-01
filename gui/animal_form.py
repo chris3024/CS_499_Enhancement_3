@@ -4,7 +4,7 @@ import tkinter as tk
 import tkinter.ttk as ttk
 from tkinter import messagebox
 from datetime import datetime
-from data.data_manager import save_animals
+
 
 
 # Class to hold new window to add a new animal
@@ -154,7 +154,7 @@ class AnimalFormWindow(tk.Toplevel):
             return
 
         # Saving the animal to the JSON
-        save_animals(file_name, animal_data)
+        # save_animals(file_name, animal_data)
 
         # Displaying message if success
         tk.messagebox.showinfo("Success", f"{self.animal_type} information saved!", parent=self)
