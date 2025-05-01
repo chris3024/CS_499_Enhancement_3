@@ -105,3 +105,5 @@ class AnimalDatabase:
             return True
         except Exception as e:
             print(f"Error: {e}")
+
+
