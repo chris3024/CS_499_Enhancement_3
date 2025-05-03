@@ -1,34 +1,39 @@
-from pymongo import MongoClient
+"""
+data.database_manager
+Handles the database tasks and connections
+"""
+import os, logging, bcrypt
+from pymongo import MongoClient, errors
 from bson.objectid import ObjectId
-import hashlib
+
 
 class AnimalDatabase:
-    def __init__(self, host="localhost", port=27017, database="rescue_animals_db", collection="animals",
-                 user_collection="users"):
-        self._host = host
-        self._port = port
+    def __init__(self, mongo_uri: str | None = None,
+                 database="rescue_animals_db", collection="animals", user_collection="users"):
+        mongo_uri = mongo_uri or os.environ.get("MONGO_URI", "mongodb://localhost:27017")
         self._database = database
         self._collection = collection
         self._user_collection = user_collection
 
         try:
             # Connecting to local database immediately when initializing the class
-            self.client = MongoClient(host, port)
+            self.client = MongoClient(mongo_uri, serverSelectionTimeoutMS=3000)
+            self.client.admin.command('ping')
             self.db = self.client[self._database]
             self.collection = self.db[self._collection]
             self.users_collection = self.db[self._user_collection]
 
             # Debug statement
-            print(f"connected to database {self._database}")
+            logging.info("Connected to MongoDB %s", database)
 
-            # Adding default user on first run
+            # Adding default admin on first run
             if self.users_collection.count_documents({}) == 0:
                 print("No users found....Creating default user")
-                self.create_user("admin", "admin1234", "admin")
+                default_pwd = os.getenv("ADMIN_PASSWORD", "admin1234")
+                self.create_user("admin", default_pwd, "admin")
 
-        except ConnectionError as e:
-            print(f"Error: {e}")
-            raise
+        except errors.ConnectionFailure as e:
+            logging.error("Error connecting to MongoDB: %s", e)
 
     # Used to check user role
     @staticmethod

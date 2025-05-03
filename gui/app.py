@@ -147,7 +147,7 @@ class AnimalApp(tk.Tk):
             return
 
         # Searching through the database looking for type == Dog
-        query = {"type": "Dog"}
+        query = {"animal_type": "Dog"}
         animals = self.db.read_all_animals(query)
 
         self.display_animals(animals)
@@ -161,7 +161,7 @@ class AnimalApp(tk.Tk):
             return
 
         # Searching through the database looking for type == Monkey
-        query = {"type": "Monkey"}
+        query = {"animal_type": "Monkey"}
         animals = self.db.read_all_animals(query)
 
         self.display_animals(animals)
@@ -262,7 +262,7 @@ class AnimalApp(tk.Tk):
             tk.messagebox.showwarning("Login Required", "You must login first.")
             return
 
-        query = {"type": {"$in": ["Dog", "Monkey"]}, "reserved": "No"}
+        query = {"animal_type": {"$in": ["Dog", "Monkey"]}, "reserved": True}
 
         animals = self.db.read_all_animals(query)
 

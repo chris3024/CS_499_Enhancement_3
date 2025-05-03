@@ -96,7 +96,7 @@ class AnimalFormWindow(tk.Toplevel):
         self.training_combobox.grid(row=7, column=1, padx=10, pady=5, sticky="e")
 
         ttk.Label(self.animal_frame, text="Reserved").grid(row=8, column=0, padx=10, pady=10, sticky="e")
-        self.reserved_combobox = ttk.Combobox(self.animal_frame, values=["Yes", "No"], state="readonly",
+        self.reserved_combobox = ttk.Combobox(self.animal_frame, values=[True, False], state="readonly",
                                               width=25)
         self.reserved_combobox.grid(row=8, column=1, padx=10, pady=5, sticky="e")
 
@@ -133,7 +133,6 @@ class AnimalFormWindow(tk.Toplevel):
             "gender": gender,
             "age": age,
             "weight": weight,
-            "acquisition_date": date,
             "acquisition_country": country,
             "training_status": training_status,
             "reserved": reserved,
