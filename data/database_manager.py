@@ -22,6 +22,8 @@ class AnimalDatabase:
             self.db = self.client[self._database]
             self.collection = self.db[self._collection]
             self.users_collection = self.db[self._user_collection]
+            print(self.db.name)
+            logging.info("MONGO URI → %s", mongo_uri)
 
             # Debug statement
             logging.info("Connected to MongoDB %s", database)
@@ -41,37 +43,41 @@ class AnimalDatabase:
         return user.get("role") == "admin"
 
     # User Authentication and Admin stuff
-    def authenticate_user(self, username, password):
-        hashed_password = hashlib.sha256(password.encode()).hexdigest()
+    def authenticate_user(self, username: str, password:str) -> tuple[dict | None, bool]:
 
-        user = self.users_collection.find_one({'username': username, "password": hashed_password})
-
-        if user:
-            if user.get("is_first_login", False):
-                return user, True
-            return user, False
+        user = self.users_collection.find_one({"username": username})
+        if user and bcrypt.checkpw(password.encode(), user["password"]):
+            return user, bool(user.get("is_first_login"))
         return None, False
 
     # Method for admin accounts to create new users
-    def create_user(self, username, password, role="user"):
-        hashed_password = hashlib.sha256(password.encode()).hexdigest()
-        self.users_collection.insert_one({
-            "username": username,
-            "password": hashed_password,
-            "role": role,
-            "is_first_login": True,
-        })
-        # Debug
-        print(f"User {username} created with role {role}")
+    def create_user(self, username: str, password: str, role: str = "user", *, first_login: bool = True) -> None:
+        if role not in ("user", "admin"):
+            raise ValueError("Role must be 'user' or 'admin'")
+
+        hashed_password = bcrypt.hashpw(password.encode(), bcrypt.gensalt())
+
+        try:
+            self.users_collection.insert_one(
+                {
+                    "username": username,
+                    "password": hashed_password,
+                    "role": role,
+                    "is_first_login": first_login,
+                }
+            )
+            logging.info("Created user %s with role %s", username, role)
+        except errors.DuplicateKeyError:
+            raise ValueError("User %s already exists", username)
 
     # Creating and inserting the animal into the database
     def create_animal(self, animal_data):
 
         try:
             self.collection.insert_one(animal_data)
-            print(f"Created new animal: {animal_data}")
-        except Exception as e:
-            print(f"Error: {e}")
+            logging.info("Inserted animal %s", animal_data["name"])
+        except errors.PyMongoError as e:
+            logging.error("Error inserting animal: %s", e)
             return False
         return True
 
@@ -80,35 +86,37 @@ class AnimalDatabase:
         try:
             query = query or {}
             cursor = self.collection.find(query)
-            return [animal for animal in cursor]
-        except Exception as e:
-            print(f"Error: {e}")
+            logging.info("Read all animals %s", cursor)
+            return list(cursor)
+        except errors.PyMongoError as e:
+            logging.error("Error reading animals: %s", e)
+            return []
 
     # Update animals
-    def update_animal(self, animal_id, animal_name, updated_fields):
+    def update_animal(self, animal_id, updated_fields):
 
         try:
-            result = self.collection.update_one({"_id": ObjectId(animal_id), "name": animal_name}, {"$set": updated_fields})
+            result = self.collection.update_one({"_id": ObjectId(animal_id)}, {"$set": updated_fields})
             if result.modified_count == 0:
-                print(f"No updates made for {animal_name}")
+                logging.error("No updates found for animal: %s", animal_id)
                 return False
-            print(f"Updated {animal_name} with {updated_fields}")
+            logging.info("Updated animal: %s", animal_id)
             return True
-        except Exception as e:
-            print(f"Error: {e}")
+        except errors.PyMongoError as e:
+            logging.error("Error updating animal: %s", e)
             return False
 
     # Delete animal
-    def delete_animal(self, animal_id, animal_name):
+    def delete_animal(self, animal_id):
 
         try:
-            result = self.collection.delete_one({"_id": ObjectId(animal_id), "name": animal_name})
+            result = self.collection.delete_one({"_id": ObjectId(animal_id)})
             if result.deleted_count == 0:
-                print(f"No deletes made for {animal_name}")
+                logging.error("No deletes found for animal: %s", animal_id)
                 return False
-            print(f"Deleted {animal_name} with {result.deleted_count}")
+            logging.info("Deleted animal: %s", animal_id)
             return True
-        except Exception as e:
-            print(f"Error: {e}")
+        except errors.PyMongoError as e:
+            logging.error("Error deleting animal: %s", e)
 
 

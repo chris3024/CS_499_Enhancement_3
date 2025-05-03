@@ -35,7 +35,7 @@ class AnimalApp(tk.Tk):
         self.tree = None
 
         # Table column headers
-        self.columns = ["_id", "Name", "Type", "Breed/Species", "Gender", "Age", "Weight", "Acquisition Date",
+        self.columns = ["Name", "Type", "Breed/Species", "Gender", "Age", "Weight", "Acquisition Date",
                         "Acquisition Country", "Training Status", "Reserved", "In Service Country"]
 
         self.title("Grazioso Salvare Animal Rescue Operations")
@@ -74,7 +74,6 @@ class AnimalApp(tk.Tk):
     # Creates the table that holds the animal data to display
     def create_table(self):
         column_widths = {
-            "_id": 0,
             "Name": 100,
             "Type": 80,
             "Breed/Species": 150,
@@ -148,7 +147,10 @@ class AnimalApp(tk.Tk):
 
         # Searching through the database looking for type == Dog
         query = {"animal_type": "Dog"}
+        print("DEBUG‑load_dogs query →", query)
+
         animals = self.db.read_all_animals(query)
+        print("DEBUG‑load_dogs result →", animals)
 
         self.display_animals(animals)
 
@@ -214,20 +216,14 @@ class AnimalApp(tk.Tk):
             tk.messagebox.showerror("Error", "No animal selected")
             return
 
-        # Getting the selected animals information
-        item = self.tree.item(selected_animal[0])
-        value = item['values']
+        mongo_id = selected_animal[0]
 
         # Debug print to check the values from Treeview
-        print(f"Selected animal: {value}")
-
-        # Getting the animal ID and name
-        animal_id = value[0]
-        animal_name = value[1]
+        print(f"Selected animal: {mongo_id}")
 
         # Calling CRUD method to delete animal from database and update treeview
-        if self.db.delete_animal(animal_id, animal_name):
-            self.tree.delete(selected_animal[0])
+        if self.db.delete_animal(mongo_id):
+            self.tree.delete(mongo_id)
             tk.messagebox.showinfo("Success", "Animal deleted")
         else:
             tk.messagebox.showerror("Error", "Animal not found")
@@ -235,24 +231,41 @@ class AnimalApp(tk.Tk):
     # Function to make sure the animals are displayed properly in the treeview
     def display_animals(self, animals):
 
+        print("DEBUG - animals: ", animals)
+        if not animals:
+            tk.messagebox.showerror("Error", "No animals found")
+            return
+
+        if isinstance(animals, dict):
+            animals = [animals]
+
         for row in self.tree.get_children():
             self.tree.delete(row)
 
+
         for animal in animals:
-            self.tree.insert("", "end", values=(
-                animal.get("_id"),
-                animal.get("name"),
-                animal.get("type"),
-                animal.get("breed") if "breed" in animal else animal.get("species"),
-                animal.get("gender"),
-                animal.get("age"),
-                animal.get("weight"),
-                animal.get("acquisition_date"),
-                animal.get("acquisition_country"),
-                animal.get("training_status"),
-                animal.get("reserved"),
-                animal.get("in_service_country"),
-            ))
+            reserved_str = "Yes" if animal.get("reserved") else "No"
+            acq_raw = animal.get("acquisition_date")
+            acquisition_date = animal["acquisition_date"][:10] if acq_raw else "-"
+
+            self.tree.insert(
+                "",
+                "end",
+                iid=str(animal["_id"]),
+                values=(
+                    animal["name"],
+                    animal["animal_type"],
+                    animal.get("breed", animal.get("species", "")),
+                    animal["gender"],
+                    animal["age"],
+                    animal["weight"],
+                    acquisition_date,
+                    animal["acquisition_country"],
+                    animal["training_status"],
+                    reserved_str,
+                    animal["in_service_country"],
+                ),
+            )
 
     # Function to filter the animals to show animals with a reserved status
     def show_reserved(self):
@@ -262,7 +275,7 @@ class AnimalApp(tk.Tk):
             tk.messagebox.showwarning("Login Required", "You must login first.")
             return
 
-        query = {"animal_type": {"$in": ["Dog", "Monkey"]}, "reserved": True}
+        query = {"animal_type": {"$in": ["Dog", "Monkey"]}, "reserved": False}
 
         animals = self.db.read_all_animals(query)
 
@@ -284,33 +297,17 @@ class AnimalApp(tk.Tk):
             tk.messagebox.showerror("Error", "No animal selected")
             return
 
-        # Getting the selected animals information
-        item = self.tree.item(selected_animal[0])
-        value = item['values']
+        iid = selected_animal[0]
 
-        # Debug print to check the values from Treeview
-        print(f"Selected animal: {value}")
+        current = self.tree.set(iid, "Reserved")
+        new_reserved_bool = current == "No"
+        new_reserved_text = "Yes" if new_reserved_bool else "No"
 
-        # Getting the animal ID and name
-        animal_id = value[0]
-        animal_name = value[1]
-
-        # Getting the reserved status
-        reserved_status = value[10]
-
-        # Setting new reserved status
-        new_status = "Yes" if reserved_status == "No" else "No"
-
-        updated_values = value[:10] + [new_status] + value[11:]
-        self.tree.item(selected_animal[0], values=updated_values)
-
-        # query parameters and finding the animal
-        updated_fields = {"reserved": new_status}
-
-        if self.db.update_animal(animal_id, animal_name, updated_fields):
-            tk.messagebox.showinfo("Success", f"Animal {animal_name} updated.")
+        if self.db.update_animal(iid, {"reserved": new_reserved_bool}):
+            self.tree.set(iid, "Reserved", new_reserved_text)
+            tk.messagebox.showinfo("Success", f"Animal {iid} updated.")
         else:
-            tk.messagebox.showerror("Error", f"Animal {animal_name} could not be updated.")
+            tk.messagebox.showerror("Error", f"Animal {iid} could not be updated.")
 
 
 

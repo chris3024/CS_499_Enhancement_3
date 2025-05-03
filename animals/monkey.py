@@ -11,7 +11,7 @@ class Monkey(RescueAnimal):
 
     animal_type = 'Monkey'
 
-    def __init__(self, *, name: str, species: str, tail_length: float, height: float, body_length: float, gender: str,
+    def __init__(self, *, name: str, species: str, gender: str,
                  age: int, weight: float, acquisition_country: str, training_status: str,
                  reserved: bool, in_service_country: str)-> None:
         super().__init__(
@@ -25,9 +25,7 @@ class Monkey(RescueAnimal):
             in_service_country=in_service_country)
 
         self.species = species
-        self.tail_length = tail_length
-        self.height = height
-        self.body_length = body_length
+
 
     # Getters/Setters for Monkey class
     @property
@@ -40,29 +38,6 @@ class Monkey(RescueAnimal):
             raise ValueError("species cannot be empty")
         self._species = value.title().strip()
 
-    @property
-    def tail_length(self) -> float:
-        return self._tail_length
-
-    @tail_length.setter
-    def tail_length(self, value: float | str) -> None:
-        self._tail_length = self._validate_positive_float(value, "tail_length")
-
-    @property
-    def height(self) -> float:
-        return self._height
-
-    @height.setter
-    def height(self, value: float | str) -> None:
-        self._height = self._validate_positive_float(value, "height")
-
-    @property
-    def body_length(self) -> float:
-        return self._body_length
-
-    @body_length.setter
-    def body_length(self, value: float | str) -> None:
-        self._body_length = self._validate_positive_float(value, "body_length")
 
     @staticmethod
     def _validate_positive_float(value: float | str, field: str) -> float:
@@ -80,9 +55,6 @@ class Monkey(RescueAnimal):
         data.update(
             {
                 "species": self.species,
-                "tail_length": self.tail_length,
-                "height": self.height,
-                "body_length": self.body_length,
                 "animal_type": self.animal_type,
             }
         )

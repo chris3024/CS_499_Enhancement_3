@@ -3,11 +3,10 @@
 import tkinter as tk
 import tkinter.ttk as ttk
 from tkinter import messagebox
-from datetime import datetime
 
 from animals.dog import Dog
 from animals.monkey import Monkey
-from data.database_manager import AnimalDatabase
+
 
 
 # Class to hold new window to add a new animal
@@ -15,7 +14,7 @@ class AnimalFormWindow(tk.Toplevel):
     def __init__(self, parent, animal_type):
         super().__init__(parent)
 
-        self.db = AnimalDatabase()
+        self.db = parent.db
         self.animal_type = animal_type
 
         self.submit_button = None
@@ -78,31 +77,24 @@ class AnimalFormWindow(tk.Toplevel):
                                       validatecommand=(validate_weight, "%P"))
         self.weight_entry.grid(row=4, column=1, padx=10, pady=5, sticky="e")
 
-        ttk.Label(self.animal_frame, text="Acquisition Date").grid(row=5, column=0, padx=10, pady=10, sticky="e")
-        self.date_entry = ttk.Entry(self.animal_frame, width=field_width)
-        self.date_entry.grid(row=5, column=1, padx=10, pady=5, sticky="e")
-
-        # Inserting current date when adding animal
-        current_date = datetime.today().strftime('%Y-%m-%d')
-        self.date_entry.insert(0, current_date)
-
-        ttk.Label(self.animal_frame, text="Acquisition Country").grid(row=6, column=0, padx=10, pady=10, sticky="e")
+        ttk.Label(self.animal_frame, text="Acquisition Country").grid(row=5, column=0, padx=10, pady=10, sticky="e")
         self.country_entry = ttk.Entry(self.animal_frame, width=field_width)
-        self.country_entry.grid(row=6, column=1, padx=10, pady=5, sticky="e")
+        self.country_entry.grid(row=5, column=1, padx=10, pady=5, sticky="e")
         
-        ttk.Label(self.animal_frame, text="Training Status").grid(row=7, column=0, padx=10, pady=10, sticky="e")
+        ttk.Label(self.animal_frame, text="Training Status").grid(row=6, column=0, padx=10, pady=10, sticky="e")
         self.training_combobox = ttk.Combobox(self.animal_frame, values=["Not Trained", "In Training", "Fully Trained"],
                                               state="readonly", width=25)
-        self.training_combobox.grid(row=7, column=1, padx=10, pady=5, sticky="e")
+        self.training_combobox.grid(row=6, column=1, padx=10, pady=5, sticky="e")
 
-        ttk.Label(self.animal_frame, text="Reserved").grid(row=8, column=0, padx=10, pady=10, sticky="e")
-        self.reserved_combobox = ttk.Combobox(self.animal_frame, values=[True, False], state="readonly",
+        ttk.Label(self.animal_frame, text="Reserved").grid(row=7, column=0, padx=10, pady=10, sticky="e")
+        self.reserved_combobox = ttk.Combobox(self.animal_frame, values=["Yes", "No"], state="readonly",
                                               width=25)
-        self.reserved_combobox.grid(row=8, column=1, padx=10, pady=5, sticky="e")
+        self.reserved_combobox.grid(row=7, column=1, padx=10, pady=5, sticky="e")
+        self.reserved_combobox.current(1)
 
-        ttk.Label(self.animal_frame, text="In Service Country").grid(row=9, column=0, padx=10, pady=10, sticky="e")
+        ttk.Label(self.animal_frame, text="In Service Country").grid(row=8, column=0, padx=10, pady=10, sticky="e")
         self.service_country_entry = ttk.Entry(self.animal_frame, width=field_width)
-        self.service_country_entry.grid(row=9, column=1, padx=10, pady=5, sticky="e")
+        self.service_country_entry.grid(row=8, column=1, padx=10, pady=5, sticky="e")
 
         self.submit_button = ttk.Button(self.animal_frame, text="Submit", command=self.submit_form)
         self.submit_button.grid(row=10, column=0, padx=10, pady=5, sticky="e")
@@ -122,17 +114,16 @@ class AnimalFormWindow(tk.Toplevel):
         age = self.age_entry.get()
         weight = self.weight_entry.get()
         gender = self.gender_combobox.get()
-        date = self.date_entry.get()
         country = self.country_entry.get()
-        reserved = self.reserved_combobox.get()
+        reserved = self.reserved_combobox.get() == "Yes"
         training_status = self.training_combobox.get()
         service = self.service_country_entry.get()
 
         common_data = {
             "name": name,
             "gender": gender,
-            "age": age,
-            "weight": weight,
+            "age": int(age),
+            "weight": float(weight),
             "acquisition_country": country,
             "training_status": training_status,
             "reserved": reserved,
@@ -151,7 +142,7 @@ class AnimalFormWindow(tk.Toplevel):
             print(f"{animal}")
 
         # Checking that fields have data entered
-        if not name or not age or not weight or not gender or not date or not country or not service:
+        if not name or not age or not weight or not gender or not country or not service:
             tk.messagebox.showerror("Error", "Please fill all fields.", parent=self)
             return
 

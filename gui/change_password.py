@@ -1,6 +1,6 @@
 # gui/change_password.py
 
-import hashlib
+import bcrypt
 import tkinter as tk
 import tkinter.ttk as ttk
 from tkinter import messagebox
@@ -38,13 +38,13 @@ class ChangePasswordWindow(tk.Toplevel):
             return
 
         # Hash the new password
-        hashed_password = hashlib.sha256(new_password.encode()).hexdigest()
+        hashed = bcrypt.hashpw(new_password.encode(), bcrypt.gensalt())
 
         # Update the password in the database
         try:
             self.db.users_collection.update_one(
                 {"_id": self.user["_id"]},
-                {"$set": {"password": hashed_password, "is_first_login": False}}  # Set is_first_login to False
+                {"$set": {"password": hashed, "is_first_login": False}}  # Set is_first_login to False
             )
             messagebox.showinfo("Success", "Password changed successfully.", parent=self)
             self.destroy()  # Close the change password window

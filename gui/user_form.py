@@ -1,4 +1,5 @@
 #gui/user_form.py
+import secrets
 import tkinter as tk
 import tkinter.ttk as ttk
 from tkinter import messagebox
@@ -42,7 +43,10 @@ class CreateUserWindow(tk.Toplevel):
             return
 
         # Call the create_user function from AnimalDatabase
-        self.db.create_user(username, password, role)
-        messagebox.showinfo("Success", f"User {username} created successfully.", parent=self)
-        self.destroy()
+        try:
+            self.db.create_user(username, password or secrets.token_urlsafe(12), role)
+            messagebox.showinfo("Success", "User created successfully.", parent=self)
+            self.destroy()
+        except ValueError as err:
+            messagebox.showerror("Error", str(err), parent=self)
 
