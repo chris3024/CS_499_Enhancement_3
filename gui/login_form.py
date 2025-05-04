@@ -1,4 +1,7 @@
-# gui/login_form.py
+"""
+gui.login_form
+Handles the user login
+"""
 
 import tkinter as tk
 from tkinter import messagebox
@@ -29,6 +32,7 @@ class LoginForm(tk.Toplevel):
         self.login_button = ttk.Button(self, text="Login", command=self.authenticate)
         self.login_button.grid(row=2, column=0, columnspan=2, padx=10, pady=10)
 
+    # compares entry to database information
     def authenticate(self):
         username = self.username_entry.get()
         password = self.password_entry.get()

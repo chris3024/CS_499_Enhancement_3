@@ -1,4 +1,7 @@
-#gui/user_form.py
+"""
+gui.user_form
+Handles the creation of new users
+"""
 import secrets
 import tkinter as tk
 import tkinter.ttk as ttk
@@ -33,6 +36,7 @@ class CreateUserWindow(tk.Toplevel):
         self.submit_button = ttk.Button(self, text="Create User", command=self.create_user)
         self.submit_button.grid(row=3, column=0, columnspan=2, pady=10)
 
+    # Gets the information and passes to method in database to create
     def create_user(self):
         username = self.username_entry.get()
         password = self.password_entry.get()

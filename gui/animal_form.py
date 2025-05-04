@@ -1,4 +1,8 @@
-# gui/animal_form.py
+"""
+gui.animal_form
+This form handles gathering the data to input
+into the database
+"""
 
 import tkinter as tk
 import tkinter.ttk as ttk

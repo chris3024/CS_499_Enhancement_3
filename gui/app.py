@@ -1,3 +1,9 @@
+"""
+gui.app
+Handles the creation and display of the main application window
+Also, houses the functions for the actions to make the dashboard interactive
+"""
+
 import tkinter as tk
 import tkinter.ttk as ttk
 from tkinter import messagebox
@@ -134,6 +140,7 @@ class AnimalApp(tk.Tk):
         self.create_user_button.grid(row=1, column=0, padx=25, pady=5)
         self.create_user_button.grid_forget()
 
+    # Calls new window to create user
     def create_user(self):
         CreateUserWindow(self)
 
@@ -147,10 +154,10 @@ class AnimalApp(tk.Tk):
 
         # Searching through the database looking for type == Dog
         query = {"animal_type": "Dog"}
-        print("DEBUG‑load_dogs query →", query)
+        #print("DEBUG‑load_dogs query →", query)
 
         animals = self.db.read_all_animals(query)
-        print("DEBUG‑load_dogs result →", animals)
+        #print("DEBUG‑load_dogs result →", animals)
 
         self.display_animals(animals)
 
@@ -176,7 +183,7 @@ class AnimalApp(tk.Tk):
             tk.messagebox.showwarning("Login Required", "You must login first.")
             return
 
-        print("Loading all animals")
+        #print("Loading all animals")
         animals = self.db.read_all_animals()
 
         self.display_animals(animals)
@@ -201,6 +208,7 @@ class AnimalApp(tk.Tk):
 
         AnimalFormWindow(self, animal_type="Monkey")
 
+    # Retrieve the animal from the treeview, then passing _id to delete the animal
     def delete_animal(self):
 
         # Checking logged in
@@ -219,7 +227,7 @@ class AnimalApp(tk.Tk):
         mongo_id = selected_animal[0]
 
         # Debug print to check the values from Treeview
-        print(f"Selected animal: {mongo_id}")
+        #print(f"Selected animal: {mongo_id}")
 
         # Calling CRUD method to delete animal from database and update treeview
         if self.db.delete_animal(mongo_id):
@@ -231,7 +239,7 @@ class AnimalApp(tk.Tk):
     # Function to make sure the animals are displayed properly in the treeview
     def display_animals(self, animals):
 
-        print("DEBUG - animals: ", animals)
+        #print("DEBUG - animals: ", animals)
         if not animals:
             tk.messagebox.showerror("Error", "No animals found")
             return

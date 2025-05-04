@@ -1,4 +1,7 @@
-# gui/change_password.py
+"""
+gui.change_password
+Handles the changing of the password on first login
+"""
 
 import bcrypt
 import tkinter as tk
@@ -29,6 +32,7 @@ class ChangePasswordWindow(tk.Toplevel):
         self.submit_button = ttk.Button(self, text="Change Password", command=self.change_password)
         self.submit_button.grid(row=2, column=0, columnspan=2, pady=10)
 
+    # Gets the two entries, compares to ensure match, then updates database
     def change_password(self):
         new_password = self.new_password_entry.get()
         confirm_password = self.confirm_password_entry.get()

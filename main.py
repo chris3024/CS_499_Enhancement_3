@@ -1,4 +1,7 @@
-# main.py
+"""
+main
+Starting point of application
+"""
 
 from __future__ import annotations
 import logging
@@ -18,9 +21,6 @@ from gui.app import AnimalApp
 
 
 def main() -> None:
-
-
-
 
     try:
         app = AnimalApp()

@@ -6,7 +6,11 @@ import os, logging, bcrypt
 from pymongo import MongoClient, errors
 from bson.objectid import ObjectId
 
-
+"""
+Class to handle database functions, including:
+Database connections, role, authentication, creation of users,
+and the CRUD operations
+"""
 class AnimalDatabase:
     def __init__(self, mongo_uri: str | None = None,
                  database="rescue_animals_db", collection="animals", user_collection="users"):
@@ -22,10 +26,9 @@ class AnimalDatabase:
             self.db = self.client[self._database]
             self.collection = self.db[self._collection]
             self.users_collection = self.db[self._user_collection]
-            print(self.db.name)
-            logging.info("MONGO URI → %s", mongo_uri)
 
             # Debug statement
+            logging.info("MONGO URI → %s", mongo_uri)
             logging.info("Connected to MongoDB %s", database)
 
             # Adding default admin on first run
@@ -42,7 +45,7 @@ class AnimalDatabase:
     def is_admin(user):
         return user.get("role") == "admin"
 
-    # User Authentication and Admin stuff
+    # User Authentication
     def authenticate_user(self, username: str, password:str) -> tuple[dict | None, bool]:
 
         user = self.users_collection.find_one({"username": username})
