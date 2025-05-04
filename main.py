@@ -7,7 +7,7 @@ from __future__ import annotations
 import logging
 import sys
 
-# Configuring logger
+# Configuring logger to display
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
