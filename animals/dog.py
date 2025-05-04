@@ -7,6 +7,7 @@ from __future__ import annotations
 from animals.rescue_animal import RescueAnimal
 
 # Dog class for dog data
+# pylint: disable=duplicate-code
 class Dog(RescueAnimal):
 
     animal_type = "Dog"
