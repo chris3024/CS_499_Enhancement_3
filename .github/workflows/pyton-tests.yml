@@ -43,5 +43,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: htmlcov-${{ matrix.python-version }}
-          path: htmlcov                # now this path exists
+          path: htmlcov
           retention-days: 7
