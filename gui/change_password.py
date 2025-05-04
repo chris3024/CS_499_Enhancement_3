@@ -13,6 +13,9 @@ from pymongo.errors import PyMongoError
 from data.database_manager import AnimalDatabase
 
 class ChangePasswordWindow(tk.Toplevel):
+    """
+    Class that handles the changing of the password on first login
+    """
     def __init__(self, parent, user):
         super().__init__(parent)
         self.user = user

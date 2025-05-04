@@ -9,8 +9,11 @@ from datetime import date
 import math
 from typing import Any, Dict
 
-# Parent animal class
+
 class RescueAnimal:
+    """
+    Base class for all rescue animals.
+    """
     def __init__(self, *, name: str, gender: str, age: int, weight: float,
                  acquisition_country: str, training_status: str, reserved: bool,
                  in_service_country: str) -> None:

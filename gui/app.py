@@ -15,9 +15,12 @@ from gui.change_password import ChangePasswordWindow
 from gui.user_form import CreateUserWindow
 
 
-# Class that houses the main application framework and logic
+
 class AnimalApp(tk.Tk):
     def __init__(self):
+        """
+        Class that houses the main application framework and logic
+        """
         super().__init__()
 
 

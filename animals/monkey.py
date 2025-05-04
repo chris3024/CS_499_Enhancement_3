@@ -8,6 +8,9 @@ from animals.rescue_animal import RescueAnimal
 
 # Monkey class for Monkey data
 class Monkey(RescueAnimal):
+    """
+    Class for Monkey subclass of RescueAnimal
+    """
 
     animal_type = 'Monkey'
 

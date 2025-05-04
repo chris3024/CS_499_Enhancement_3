@@ -9,6 +9,9 @@ from tkinter import ttk
 
 
 class LoginForm(tk.Toplevel):
+    """
+    Class that handles the login form
+    """
     def __init__(self, parent, authenticate_callback, db):
         super().__init__(parent)
 

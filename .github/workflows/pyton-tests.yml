@@ -1,0 +1,47 @@
+name: 🐍  Python-tests
+
+on:
+  push:
+    branches: [ main, master ]          # run on every push to your main branch
+  pull_request:
+    branches: [ main, master ]          # gate every PR
+  workflow_dispatch:                     # allow manual re‑runs from the UI
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.12"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pytest coverage
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+      - name: Run tests + coverage
+        run: |
+          coverage run -m pytest -q
+          coverage html                # generates ./htmlcov/
+          coverage xml
+
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: htmlcov-${{ matrix.python-version }}
+          path: htmlcov                # now this path exists
+          retention-days: 7

@@ -9,6 +9,9 @@ from animals.rescue_animal import RescueAnimal
 # Dog class for dog data
 # pylint: disable=duplicate-code
 class Dog(RescueAnimal):
+    """
+    Class for Dog subclass of RescueAnimal
+    """
 
     animal_type = "Dog"
 

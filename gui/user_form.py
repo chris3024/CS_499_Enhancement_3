@@ -9,6 +9,9 @@ from tkinter import messagebox
 from data.database_manager import AnimalDatabase
 
 class CreateUserWindow(tk.Toplevel):
+    """
+    Class that handles the creation of new users
+    """
     def __init__(self, parent):
         super().__init__(parent)
 
