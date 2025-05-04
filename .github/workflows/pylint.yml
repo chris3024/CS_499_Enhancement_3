@@ -1,0 +1,52 @@
+name: Pylint(+ dynamic badge)
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:          # run manually from the Actions tab
+
+jobs:
+  pylint-badge:
+    runs-on: ubuntu-latest
+
+    permissions:              # ←– required so the action can commit the badge
+      contents: write
+
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.12"]   # add more if you like
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Lint & update badge
+        uses: Silleellie/pylint-github-action@v2.1
+        with:
+          # **Pick the paths you want Pylint to scan**
+          # multi‑line allowed if you have several top‑level packages
+          lint-path: |
+            animals
+            data
+            gui
+            main.py
+
+          python-version: ${{ matrix.python-version }}
+
+          # Project dependencies (change if you use requirements-dev.txt)
+          requirements-path: requirements.txt
+
+          # Your custom pylintrc (empty = default rules)
+          pylintrc-path: .pylintrc
+
+          # README to patch
+          readme-path: README.md
+
+          # Optional badge tweaks
+          badge-text: PyLint
+          color-bad-score: red
+          color-ok-score: orange
+          color-good-score: yellow
+          color-perfect-score: brightgreen
