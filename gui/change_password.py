@@ -5,8 +5,11 @@ Handles the changing of the password on first login
 
 import bcrypt
 import tkinter as tk
-import tkinter.ttk as ttk
+from tkinter import ttk
 from tkinter import messagebox
+
+from pymongo.errors import PyMongoError
+
 from data.database_manager import AnimalDatabase
 
 class ChangePasswordWindow(tk.Toplevel):
@@ -52,5 +55,5 @@ class ChangePasswordWindow(tk.Toplevel):
             )
             messagebox.showinfo("Success", "Password changed successfully.", parent=self)
             self.destroy()  # Close the change password window
-        except Exception as e:
+        except PyMongoError as e:
             messagebox.showerror("Error", f"Failed to change password: {e}", parent=self)

@@ -1,0 +1,37 @@
+[MASTER]
+ignore=venv, .venv, migrations
+extension-pkg-whitelist=
+load-plugins=
+jobs=1
+init-hook:'import sys; sys.path.append(".")'
+
+[MESSAGES CONTROL]
+disable=
+    missing-docstring,         # many methods don't need one
+    invalid-name,              # allows things like 'db' or 'id'
+    too-few-public-methods,    # fine for simple GUI/data classes
+    too-many-arguments,        # acceptable for Tkinter/init functions
+    no-member,                 # suppress false positives from tkinter, pymongo
+    too-many-instance-attributes,  # UI/data-heavy classes may use many
+    line-too-long,
+
+[FORMAT]
+max-line-length=100
+indent-string='    '
+indent-after-paren=4
+
+[DESIGN]
+max-args=8
+max-locals=20
+max-branches=15
+max-statements=50
+
+[TYPECHECK]
+generated-members=tk.*,ttk.*,ObjectId
+
+[IMPORTS]
+known-third-party=pymongo,bson,tkinter,sv_ttk
+
+[REPORTS]
+output-format=colorized
+score=yes

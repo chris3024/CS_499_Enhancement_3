@@ -4,7 +4,7 @@ Handles the creation of new users
 """
 import secrets
 import tkinter as tk
-import tkinter.ttk as ttk
+from tkinter import ttk
 from tkinter import messagebox
 from data.database_manager import AnimalDatabase
 
@@ -53,4 +53,3 @@ class CreateUserWindow(tk.Toplevel):
             self.destroy()
         except ValueError as err:
             messagebox.showerror("Error", str(err), parent=self)
-

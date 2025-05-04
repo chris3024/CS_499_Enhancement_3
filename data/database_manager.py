@@ -2,16 +2,22 @@
 data.database_manager
 Handles the database tasks and connections
 """
-import os, logging, bcrypt
-from pymongo import MongoClient, errors
-from bson.objectid import ObjectId
+import logging
+import os
+import bcrypt
 
-"""
-Class to handle database functions, including:
-Database connections, role, authentication, creation of users,
-and the CRUD operations
-"""
+
+from bson.objectid import ObjectId
+from pymongo import MongoClient, errors
+
+
 class AnimalDatabase:
+    """
+    Class to handle database functions, including:
+    Database connections, role, authentication, creation of users,
+    and the CRUD operations
+    """
+
     def __init__(self, mongo_uri: str | None = None,
                  database="rescue_animals_db", collection="animals", user_collection="users"):
         mongo_uri = mongo_uri or os.environ.get("MONGO_URI", "mongodb://localhost:27017")
@@ -70,8 +76,8 @@ class AnimalDatabase:
                 }
             )
             logging.info("Created user %s with role %s", username, role)
-        except errors.DuplicateKeyError:
-            raise ValueError("User %s already exists", username)
+        except errors.DuplicateKeyError as exc:
+            raise ValueError(f"User {username} already exists") from exc
 
     # Creating and inserting the animal into the database
     def create_animal(self, animal_data):
@@ -121,5 +127,4 @@ class AnimalDatabase:
             return True
         except errors.PyMongoError as e:
             logging.error("Error deleting animal: %s", e)
-
-
+            return False

@@ -6,6 +6,8 @@ Starting point of application
 from __future__ import annotations
 import logging
 import sys
+from tkinter import Tk, messagebox
+from gui.app import AnimalApp
 
 # Configuring logger to display
 logging.basicConfig(
@@ -15,13 +17,12 @@ logging.basicConfig(
 )
 logging.info("Starting")
 
-from tkinter import Tk, ttk
-from gui.app import AnimalApp
-
-
-
 def main() -> None:
-
+    """
+    Main function to start the application.
+    Includes logging for errors
+    :return:
+    """
     try:
         app = AnimalApp()
         app.mainloop()
@@ -29,8 +30,8 @@ def main() -> None:
         logging.error("Application failed to start: %s", err, exc_info=True)
         root = Tk()
         root.withdraw()
-        ttk.messagebox.showerror("Database error", str(err))
+        messagebox.showerror("Database error", str(err))
         root.destroy()
 
 if __name__ == '__main__':
-     main()
+    main()

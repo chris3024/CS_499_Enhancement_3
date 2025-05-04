@@ -5,7 +5,7 @@ Also, houses the functions for the actions to make the dashboard interactive
 """
 
 import tkinter as tk
-import tkinter.ttk as ttk
+from tkinter import ttk
 from tkinter import messagebox
 import sv_ttk
 from data.database_manager import AnimalDatabase
@@ -316,8 +316,3 @@ class AnimalApp(tk.Tk):
             tk.messagebox.showinfo("Success", f"Animal {iid} updated.")
         else:
             tk.messagebox.showerror("Error", f"Animal {iid} could not be updated.")
-
-
-
-
-

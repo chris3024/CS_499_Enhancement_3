@@ -42,5 +42,3 @@ class Dog(RescueAnimal):
         base = super().to_dict()
         base.update({"breed": self.breed, "animal_type": self.animal_type})
         return base
-
-
