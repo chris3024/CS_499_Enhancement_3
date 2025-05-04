@@ -1,52 +1,56 @@
-name: Pylint(+ dynamic badge)
+name: Pylint(lint all, badge once)
 
 on:
   push:
-    branches: [ main, master ]
+    branches: [ main, master ]          # update badge only on real pushes
   pull_request:
-    branches: [ main, master ]
-  workflow_dispatch:          # run manually from the Actions tab
+    branches: [ main, master ]          # PRs lint but do NOT push a badge
+  workflow_dispatch:                    # manual run button
 
 jobs:
-  pylint-badge:
+  lint:
     runs-on: ubuntu-latest
-
-    permissions:              # ←– required so the action can commit the badge
+    permissions:                        # needed so the 3.12 job can commit
       contents: write
 
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.10", "3.12"]   # add more if you like
+        python-version: ["3.10", "3.12"]
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Lint & update badge
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+
+      - name: Install project deps + pylint
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          pip install pylint
+
+      # ----------  Plain lint for ALL matrix entries ----------
+      - name: Run Pylint (quality gate)
+        run: |
+          pylint --fail-under=8 $(git ls-files '*.py')
+
+      # ----------  Badge update ONLY on Python 3.12 ----------
+      - name: Update README badge (only 3.12 push)
+        if: |
+          matrix.python-version == '3.12' && github.event_name == 'push'
         uses: Silleellie/pylint-github-action@v2.1
         with:
-          # **Pick the paths you want Pylint to scan**
-          # multi‑line allowed if you have several top‑level packages
+          python-version: ${{ matrix.python-version }}     # must match runner
           lint-path: |
             animals
             data
             gui
             main.py
-
-          python-version: ${{ matrix.python-version }}
-
-          # Project dependencies (change if you use requirements-dev.txt)
-          requirements-path: requirements.txt
-
-          # Your custom pylintrc (empty = default rules)
           pylintrc-path: .pylintrc
-
-          # README to patch
+          requirements-path: requirements.txt
           readme-path: README.md
-
-          # Optional badge tweaks
           badge-text: PyLint
-          color-bad-score: red
-          color-ok-score: orange
-          color-good-score: yellow
-          color-perfect-score: brightgreen
