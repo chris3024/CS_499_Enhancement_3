@@ -1,7 +1,3 @@
-"""
-tests.test_database
-Tests for the database
-"""
 import bcrypt
 import pytest
 from bson.objectid import ObjectId
@@ -24,37 +20,48 @@ def _sample_dog_dict(**overrides):
     base.update(overrides)
     return base
 
-# ---------------------------------------------------------------------------
-
-def test_create_user_and_authenticate(db):
+def test_create_and_authenticate_user(db):
     db.create_user("jane", "pwd123", role="user", first_login=False)
-    user, first = db.authenticate_user("jane", "pwd123")
-    assert user and user["username"] == "jane"
-    assert first is False
-    # password must be stored hashed
+    user, first_login = db.authenticate_user("jane", "pwd123")
+    assert user is not None
+    assert user["username"] == "jane"
+    assert first_login is False
     assert bcrypt.checkpw("pwd123".encode(), user["password"])
+    assert user["password"] != "pwd123"
 
-def test_duplicate_user_raises(db):
-    db.create_user("john", "p", role="user", first_login=False)
+def test_authenticate_with_wrong_password(db):
+    db.create_user("jane", "pwd123", role="user", first_login=False)
+    user, _ = db.authenticate_user("jane", "wrongpassword")
+    assert user is None
+
+def test_duplicate_user_creation_raises_error(db):
+    db.create_user("john", "password", role="user", first_login=False)
     with pytest.raises(ValueError):
-        db.create_user("john", "p", role="user", first_login=False)
+        db.create_user("john", "password", role="user", first_login=False)
 
-def test_full_animal_crud_cycle(db):
-    # CREATE
+def test_create_and_read_animal(db):
     dog = _sample_dog_dict()
     assert db.create_animal(dog) is True
-
-    # READ
     animals = db.read_all_animals({"name": "Buddy"})
     assert len(animals) == 1
-    created_id = animals[0]["_id"]
-    assert isinstance(created_id, ObjectId)
+    retrieved = animals[0]
+    assert isinstance(retrieved["_id"], ObjectId)
+    assert retrieved["name"] == "Buddy"
+    assert retrieved["breed"] == "Labrador"
 
-    # UPDATE
-    assert db.update_animal(created_id, {"reserved": True}) is True
-    updated = db.read_all_animals({"_id": created_id})[0]
+def test_update_animal_reserved_status(db):
+    dog = _sample_dog_dict()
+    db.create_animal(dog)
+    created = db.read_all_animals({"name": "Buddy"})[0]
+    animal_id = created["_id"]
+    assert db.update_animal(animal_id, {"reserved": True}) is True
+    updated = db.read_all_animals({"_id": animal_id})[0]
     assert updated["reserved"] is True
 
-    # DELETE
-    assert db.delete_animal(created_id) is True
-    assert db.read_all_animals({"_id": created_id}) == []
+def test_delete_animal_entry(db):
+    dog = _sample_dog_dict()
+    db.create_animal(dog)
+    created = db.read_all_animals({"name": "Buddy"})[0]
+    animal_id = created["_id"]
+    assert db.delete_animal(animal_id) is True
+    assert db.read_all_animals({"_id": animal_id}) == []

@@ -5,58 +5,61 @@ Handles the changing of the password on first login
 
 import bcrypt
 import tkinter as tk
-from tkinter import ttk
-from tkinter import messagebox
-
+from tkinter import ttk, messagebox
 from pymongo.errors import PyMongoError
-
 from data.database_manager import AnimalDatabase
+
 
 class ChangePasswordWindow(tk.Toplevel):
     """
-    Class that handles the changing of the password on first login
+    Prompts user to set a new password on first login.
     """
+
     def __init__(self, parent, user):
         super().__init__(parent)
         self.user = user
         self.db = AnimalDatabase()
 
         self.title("Change Password")
-        self.geometry("400x300")
+        self.geometry("400x200")
         self.resizable(False, False)
 
-        # Labels and Entries for New Password
-        ttk.Label(self, text="New Password:").grid(row=0, column=0, padx=10, pady=10)
-        self.new_password_entry = ttk.Entry(self, width=30, show="*")
-        self.new_password_entry.grid(row=0, column=1, padx=10, pady=10)
+        self._build_ui()
 
-        ttk.Label(self, text="Confirm Password:").grid(row=1, column=0, padx=10, pady=10)
-        self.confirm_password_entry = ttk.Entry(self, width=30, show="*")
-        self.confirm_password_entry.grid(row=1, column=1, padx=10, pady=10)
+    def _build_ui(self):
+        form_frame = ttk.Frame(self)
+        form_frame.pack(padx=20, pady=20)
 
-        # Submit button
-        self.submit_button = ttk.Button(self, text="Change Password", command=self.change_password)
-        self.submit_button.grid(row=2, column=0, columnspan=2, pady=10)
+        ttk.Label(form_frame, text="New Password:").grid(row=0, column=0, sticky="e", padx=5, pady=5)
+        self.new_password_entry = ttk.Entry(form_frame, width=30, show="*")
+        self.new_password_entry.grid(row=0, column=1, padx=5, pady=5)
 
-    # Gets the two entries, compares to ensure match, then updates database
-    def change_password(self):
-        new_password = self.new_password_entry.get()
-        confirm_password = self.confirm_password_entry.get()
+        ttk.Label(form_frame, text="Confirm Password:").grid(row=1, column=0, sticky="e", padx=5, pady=5)
+        self.confirm_password_entry = ttk.Entry(form_frame, width=30, show="*")
+        self.confirm_password_entry.grid(row=1, column=1, padx=5, pady=5)
 
-        if new_password != confirm_password:
-            messagebox.showerror("Error", "Passwords do not match.", parent=self)
+        submit_btn = ttk.Button(self, text="Change Password", command=self._change_password)
+        submit_btn.pack(pady=10)
+
+    def _change_password(self):
+        password = self.new_password_entry.get()
+        confirm = self.confirm_password_entry.get()
+
+        if password != confirm:
+            messagebox.showerror("Mismatch", "Passwords do not match.", parent=self)
             return
 
-        # Hash the new password
-        hashed = bcrypt.hashpw(new_password.encode(), bcrypt.gensalt())
+        if len(password) < 6:
+            messagebox.showwarning("Weak Password", "Password must be at least 6 characters.", parent=self)
+            return
 
-        # Update the password in the database
         try:
-            self.db.users_collection.update_one(
+            hashed = bcrypt.hashpw(password.encode(), bcrypt.gensalt())
+            self.db.users.update_one(
                 {"_id": self.user["_id"]},
-                {"$set": {"password": hashed, "is_first_login": False}}  # Set is_first_login to False
+                {"$set": {"password": hashed, "is_first_login": False}}
             )
             messagebox.showinfo("Success", "Password changed successfully.", parent=self)
-            self.destroy()  # Close the change password window
+            self.destroy()
         except PyMongoError as e:
-            messagebox.showerror("Error", f"Failed to change password: {e}", parent=self)
+            messagebox.showerror("Database Error", f"Could not update password: {e}", parent=self)

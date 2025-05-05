@@ -1,22 +1,15 @@
 """
 animals.dog
-Defines the Dog subclass of RescueAnimal
+Holds the Dog subclass information
 """
 
-from __future__ import annotations
 from animals.rescue_animal import RescueAnimal
 
-# Dog class for dog data
-# pylint: disable=duplicate-code
 class Dog(RescueAnimal):
-    """
-    Class for Dog subclass of RescueAnimal
-    """
-
     animal_type = "Dog"
 
     def __init__(self, *, name: str, breed: str, gender: str, age: int, weight: float,
-                 acquisition_country: str, training_status: str, reserved: bool, in_service_country: str)-> None:
+                 acquisition_country: str, training_status: str, reserved: bool, in_service_country: str):
         super().__init__(
             name=name,
             gender=gender,
@@ -25,24 +18,11 @@ class Dog(RescueAnimal):
             acquisition_country=acquisition_country,
             training_status=training_status,
             reserved=reserved,
-            in_service_country=in_service_country)
+            in_service_country=in_service_country
+        )
+        self.breed = breed.strip().title()
 
-        self.breed = breed
-
-
-    # Getters/Setters for Dog class
-    @property
-    def breed(self) -> str:
-        return self._breed
-
-    @breed.setter
-    def breed(self, value: str) -> None:
-        if not value:
-            raise ValueError("breed cannot be empty")
-        self._breed = value.title().strip()
-
-    # Converting object to dict for database
-    def to_dict(self) -> dict[str, object]:
-        base = super().to_dict()
-        base.update({"breed": self.breed, "animal_type": self.animal_type})
-        return base
+    def to_dict(self):
+        data = super().to_dict()
+        data["breed"] = self.breed
+        return data

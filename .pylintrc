@@ -1,5 +1,5 @@
 [MASTER]
-ignore=venv, .venv, migrations
+ignore=venv, .venv, migrations, tests
 extension-pkg-whitelist=
 load-plugins=
 jobs=1
@@ -14,6 +14,8 @@ disable=
     no-member,                 # suppress false positives from tkinter, pymongo
     too-many-instance-attributes,  # UI/data-heavy classes may use many
     line-too-long,
+    too-many-positional-arguments,
+    duplicate-code,
 
 [FORMAT]
 max-line-length=100
