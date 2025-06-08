@@ -44,6 +44,7 @@ class AnimalApp(tk.Tk):
         self._create_table()
         self._create_action_buttons()
 
+    # Creates the table to hold the Animal Data
     def _create_table(self):
         column_widths = {
             "Name": 100, "Type": 80, "Breed/Species": 150, "Gender": 80, "Age": 50,
@@ -82,10 +83,13 @@ class AnimalApp(tk.Tk):
 
         self.buttons["Create User"].grid_remove()  # Hidden until admin logs in
 
+    # Login Check
     def check_login(self):
         if not self.logged_in:
             LoginForm(self, self.on_login_success, self.db)
 
+    # With Successful Login
+    # Checking role, and if first login
     def on_login_success(self, user, is_first_login=False):
         self.logged_in = True
         self.user_role = user["role"]
@@ -94,9 +98,11 @@ class AnimalApp(tk.Tk):
         if self.db.is_admin(user):
             self.buttons["Create User"].grid()
 
+    # Password Change Window
     def open_change_password(self, user):
         ChangePasswordWindow(self, user)
 
+    # Login Warning
     def _require_login(self) -> bool:
         if not self.logged_in:
             messagebox.showwarning("Login Required", "Please log in first.")
@@ -129,6 +135,7 @@ class AnimalApp(tk.Tk):
         if self._require_login():
             AnimalFormWindow(self, animal_type="Monkey")
 
+    # Takes the selection from the table and calls the delete CRUD method
     def delete_animal(self):
         if not self._require_login():
             return
@@ -145,6 +152,7 @@ class AnimalApp(tk.Tk):
         else:
             messagebox.showerror("Error", "Animal could not be deleted.")
 
+    # Helper method to display animals in the table
     def display_animals(self, animals):
         if not animals:
             messagebox.showerror("Error", "No animals found.")
